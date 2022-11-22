@@ -1,3 +1,15 @@
+///////////////////////////////////////////////////////////////////////////////
+// Project#4
+// Sudoku: Part A
+// Written by:
+// James Napier:                                      napier.j@northeastern.edu
+// Julia Rasmussen:                                rasmussen.j@northeastern.edu
+// Samuel Sheehan:                                   sheehan.s@northeastern.edu
+//
+// Main program file for homework 4a. Includes functions for initializing the
+// conflicts, adding and removing cells, and printing out the sudoku board.
+///////////////////////////////////////////////////////////////////////////////
+
 #include <iostream>
 #include <limits.h>
 #include "d_matrix.h"
@@ -47,7 +59,7 @@ void board::initialize(ifstream& fin)
             if (ch != '.')
                 setCell(i, j, ch - '0');   // Convert char to int
         }
-    
+
 }
 
 void board::setCell(int r, int c, int n)
@@ -185,7 +197,7 @@ void board::printConflicts()
 #pragma region NewHandlers
 
 void board::updateConflicts(int r, int c, int v, bool b)
-// 
+//Update the conflicts on the board for a given cell and value.
 {
     int mod;
     if (b)
@@ -196,13 +208,14 @@ void board::updateConflicts(int r, int c, int v, bool b)
     {
         mod = Blank;
     }
-    
+
     row_conflicts[r][v] = mod;
     col_conflicts[c][v] = mod;
     square_conflicts[squareNumber(r, c)][v] = mod;
 }
 
 void board::resetCell(int r, int c)
+//Reset the given cell.
 {
     int val = value[r][c];
     value[r][c] = Blank;
@@ -210,6 +223,7 @@ void board::resetCell(int r, int c)
 }
 
 bool board::isSolved()
+//Check whether or not the board is solved and return as a boolean.
 {
     for (int n = 0; n < 3; n++)
     {
@@ -244,12 +258,14 @@ bool board::isSolved()
 #pragma endregion NewHandlers
 
 int main()
+//The main function, where the code for the program is executed.
 {
     ifstream fin;
     string fileName;
     // Read the sample grid from the file.
     for (int i = 1; i <= 3; i++)
     {
+        //Read through each given sudoku file.
         if (i == 1)
         {
             fileName = "sudoku1.txt";
@@ -262,6 +278,8 @@ int main()
         {
             fileName = "sudoku3.txt";
         }
+
+        //Open the file, throw an error if it can't be opened.
         fin.open(fileName.c_str());
         if (!fin)
         {
@@ -273,6 +291,7 @@ int main()
         {
             board b1(SquareSize);
 
+            //Initialize the board.
             while (fin && fin.peek() != 'Z')
             {
                 b1.initialize(fin);
@@ -280,15 +299,28 @@ int main()
                 b1.printConflicts();
             }
 
+            //Set cell (1, 2) to 2.
+            cout << "The cell on the first row and second column was set to 2.\n";
+            b1.setCell(1, 2, 2);
+            b1.print();
+            b1.printConflicts();
+
+            //Reset the cell (1, 2).
+            cout << "This same cell was reset.\n";
+            b1.resetCell(1, 2);
+            b1.print();
+            b1.printConflicts();
+
+            //Check whether or not the board is solved.
             if (b1.isSolved())
             {
-                cout << "Perfect Input!" << endl;
+                cout << "Perfect input! The board is solved!" << endl;
             }
             else
             {
-                cout << "Not Quite" << endl;
+                cout << "Not quite there. The board is not solved yet." << endl;
             }
-        
+
         }
         catch (indexRangeError& ex)
         {
