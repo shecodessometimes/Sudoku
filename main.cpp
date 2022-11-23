@@ -20,9 +20,12 @@
 #include <fstream>
 
 #pragma region Board
+
+/*
+* Initializes the board object.
+*/
 board::board(int sqSize)
     : value(BoardSize + 1, BoardSize + 1)
-    // Board constructor
 {
     row_conflicts = matrix<int>(BoardSize + 1, BoardSize + 1);
     col_conflicts = matrix<int>(BoardSize + 1, BoardSize + 1);
@@ -30,8 +33,10 @@ board::board(int sqSize)
     clear();
 }
 
+/*
+* Mark all possible values as legal for each board entry.
+*/
 void board::clear()
-// Mark all possible values as legal for each board entry
 {
     for (int i = 1; i <= BoardSize; i++)
         for (int j = 1; j <= BoardSize; j++)
@@ -43,8 +48,10 @@ void board::clear()
         }
 }
 
+/*
+* Read a Sudoku board from the input file fin.
+*/
 void board::initialize(ifstream& fin)
-// Read a Sudoku board from the input file.
 {
     char ch;
 
@@ -62,25 +69,32 @@ void board::initialize(ifstream& fin)
 
 }
 
+/*
+* Set the value at cell at index (r, c) to n.
+*/
 void board::setCell(int r, int c, int n)
-//Set the value at cell at index (r, c) to n.
 {
     value[r][c] = n;
     updateConflicts(r, c, n, true);
 }
 
+/*
+* Return the square number of cell (i,j) (counting from left to right,
+* top to bottom).  Note that i and j each go from 1 to BoardSize.
+*/
 int squareNumber(int i, int j)
-// Return the square number of cell i,j (counting from left to right,
-// top to bottom.  Note that i and j each go from 1 to BoardSize
 {
     // Note that (int) i/SquareSize and (int) j/SquareSize are the x-y
-    // coordinates of the square that i,j is in.  
+    // coordinates of the square that (i, j) is in.  
 
     return SquareSize * ((i - 1) / SquareSize) + (j - 1) / SquareSize + 1;
 }
 
+/*
+* Overloaded output operator for vector class. Returns ostream with
+* the printed out vector v, using the initial ostream ostr.
+*/
 ostream& operator<<(ostream& ostr, vector<int>& v)
-// Overloaded output operator for vector class.
 {
     for (int i = 0; i < v.size(); i++)
         ostr << v[i] << " ";
@@ -88,9 +102,11 @@ ostream& operator<<(ostream& ostr, vector<int>& v)
     return ostr;
 }
 
+/*
+* Returns the value stored in cell (i, j).  Throws an exception
+* if bad values are passed.
+*/
 ValueType board::getCell(int i, int j)
-// Returns the value stored in a cell.  Throws an exception
-// if bad values are passed.
 {
     if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
         return value[i][j];
@@ -98,8 +114,10 @@ ValueType board::getCell(int i, int j)
         throw rangeError("bad value in getCell");
 }
 
+/*
+* Returns true if cell (i, j) is blank, and false otherwise. 
+*/
 bool board::isBlank(int i, int j)
-// Returns true if cell i,j is blank, and false otherwise.
 {
     if (i < 1 || i > BoardSize || j < 1 || j > BoardSize)
         throw rangeError("bad value in setCell");
@@ -107,8 +125,10 @@ bool board::isBlank(int i, int j)
     return (getCell(i, j) == Blank);
 }
 
+/*
+* Prints the current board. 
+*/
 void board::print()
-// Prints the current board.
 {
     for (int i = 1; i <= BoardSize; i++)
     {
@@ -140,8 +160,10 @@ void board::print()
     cout << endl;
 }
 
+/*
+* Prints the conflicts present in the current board. 
+*/
 void board::printConflicts()
-// Prints the current board.
 {
     cout << "The following initial conflicts were found: \n";
     for (int n = 0; n < 3; n++)
@@ -196,8 +218,10 @@ void board::printConflicts()
 
 #pragma region NewHandlers
 
+/*
+* Update the conflicts on the board for given cell (r, c) and value v.  
+*/
 void board::updateConflicts(int r, int c, int v, bool b)
-//Update the conflicts on the board for a given cell and value.
 {
     int mod;
     if (b)
@@ -214,16 +238,20 @@ void board::updateConflicts(int r, int c, int v, bool b)
     square_conflicts[squareNumber(r, c)][v] = mod;
 }
 
+/*
+* Reset the given cell (r, c).  
+*/
 void board::resetCell(int r, int c)
-//Reset the given cell.
 {
     int val = value[r][c];
     value[r][c] = Blank;
     updateConflicts(r, c, val, false);
 }
 
+/*
+* Check whether or not the board is solved and return as a boolean.  
+*/
 bool board::isSolved()
-//Check whether or not the board is solved and return as a boolean.
 {
     for (int n = 0; n < 3; n++)
     {
@@ -257,8 +285,10 @@ bool board::isSolved()
 
 #pragma endregion NewHandlers
 
+/*
+* The main function, where the code for the program is executed.
+*/
 int main()
-//The main function, where the code for the program is executed.
 {
     ifstream fin;
     string fileName;
