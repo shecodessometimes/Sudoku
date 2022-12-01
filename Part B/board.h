@@ -39,9 +39,10 @@ public:
     void resetCell(int, int);
     bool isSolved();
     //void solve();
-    //bool cellFullyConstrained(int i, int j);
+    //bool cellFullyConstrained(std::vector<int> cell);
     bool numberIsLegal(std::vector<int> cell, int n);
     vector<ValueType> nextBlank();
+    //void solve(int iter = 1);
 private:
 
     // The following matrices go from 1 to BoardSize in each

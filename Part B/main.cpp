@@ -282,21 +282,7 @@ bool board::isSolved()
     }
     return true;
 }
-/*
-bool board::cellFullyConstrained(int i, int j)
-{
-    bool fullyConstrained = true;
-    for (int n = 0; n < 9; n++)
-    {
-        //if value n has no conflicts, it can be placed.
-        if (numberIsLegal(i, j, n))
-        {
-            fullyConstrained = false;
-        }
-    }
-    return fullyConstrained;
-}
-*/
+
 bool board::numberIsLegal(vector<int> cell, int n)
 {
     bool isLegal = true;
@@ -329,8 +315,7 @@ vector<ValueType> board::nextBlank()
         {
             if (this->isBlank(r,c))
             {
-                
-                int comp = 0;
+                vector<int> comp(3,0);
                 for (int n = 0; n < 3; n++)
                 {
                     //choose which conflict matrix to print out
@@ -340,7 +325,7 @@ vector<ValueType> board::nextBlank()
                         conflict_matrix = row_conflicts;
                         for (int i = 1; i <= BoardSize; i++)
                         {
-                            comp += conflict_matrix[r][i];
+                            comp[n] += conflict_matrix[r][i];
                         }
                         
                     }
@@ -349,7 +334,7 @@ vector<ValueType> board::nextBlank()
                         conflict_matrix = col_conflicts;
                         for (int j = 1; j<= BoardSize; j++)
                         {
-                            comp += conflict_matrix[c][j];
+                            comp[n] += conflict_matrix[c][j];
                         }
                     }
                     else
@@ -357,20 +342,17 @@ vector<ValueType> board::nextBlank()
                         conflict_matrix = square_conflicts;
                         for (int k = 1; k <= BoardSize; k++)
                         {
-                            comp += conflict_matrix[squareNumber(r,c)][k];
+                            comp[n] += conflict_matrix[squareNumber(r,c)][k];
                         }
-                        
                     }
-
                 }
-                if (comp >= lock)
+                int sum = comp[0] + comp[1] + comp[2];
+                if (sum > lock)
                 {
-                    lock = comp;
-                    comp = 0;
+                    lock = sum;
                     cell[0] = r;
                     cell[1] = c;
                 }
-                
             }
         }
     }
@@ -380,13 +362,14 @@ vector<ValueType> board::nextBlank()
 /*
 * Solves the board recursively.
 */
-void solve(board board)
+int solve(board board, int iter = 1)
 {
     //first base case: the board is already solved.
     if (board.isSolved())
     {
         board.print();
-        return;
+        cout << "Iterations: " << iter << endl;
+        return iter;
     }
     /*
     //second base case: no more legal choices for blank cell.
@@ -404,13 +387,14 @@ void solve(board board)
         // Check All Numbers
         for (int n = 1; n <= 9; n++)
         {
+            iter++;
             if (board.numberIsLegal(blank, n))
             {
                 board.setCell(blank[0], blank[1], n);
-                board.print();
-                solve(board);
+                //board.print();
+                //cout << "Setting " << n << " at " << blank[0] << "," << blank[1] << endl;
+                solve(board, iter);
                 board.resetCell(blank[0], blank[1]);
-
             }
         }
     }
@@ -424,75 +408,41 @@ void solve(board board)
 int main()
 {
     ifstream fin;
-    string fileName;
+    string fileName = "sudoku1-3.txt";
     // Read the sample grid from the file.
-    for (int i = 1; i <= 1; i++)
+
+    //Open the file, throw an error if it can't be opened.
+    fin.open(fileName.c_str());
+    if (!fin)
     {
-        //Read through each given sudoku file.
-        if (i == 1)
-        {
-            fileName = "sudoku1.txt";
-        }
-        else if (i == 2)
-        {
-            fileName = "sudoku2.txt";
-        }
-        else
-        {
-            fileName = "sudoku3.txt";
-        }
+        cerr << "Cannot open " << fileName << endl;
+        exit(1);
+    }
 
-        //Open the file, throw an error if it can't be opened.
-        fin.open(fileName.c_str());
-        if (!fin)
+    try
+    {
+        board b1(SquareSize);
+        int iterations, avrg;
+        int sum = 0;
+        int probCount = 0;
+        //Initialize the board.
+        while (fin && fin.peek() != 'Z')
         {
-            cerr << "Cannot open " << fileName << endl;
-            exit(1);
-        }
-
-        try
-        {
-            board b1(SquareSize);
-
-            //Initialize the board.
-            while (fin && fin.peek() != 'Z')
-            {
-                b1.initialize(fin);
-                b1.print();
-                b1.printConflicts();
-            }
-
-            //Set cell (1, 2) to 2.
-            cout << "The cell on the first row and second column was set to 2.\n";
-            b1.setCell(1, 2, 2);
+            b1.initialize(fin);
             b1.print();
-            b1.printConflicts();
-
-            //Reset the cell (1, 2).
-            cout << "This same cell was reset.\n";
-            b1.resetCell(1, 2);
-            b1.print();
-            b1.printConflicts();
-
-            //Check whether or not the board is solved.
-            if (b1.isSolved())
-            {
-                cout << "Perfect input! The board is solved!" << endl;
-            }
-            else
-            {
-                cout << "Not quite there. The board is not solved yet." << endl;
-            }
-
             //Try to solve the board
             cout << "\nWe will now attempt to solve the given board.\n";
-            solve(b1);
+            iterations = solve(b1);
+            sum += iterations;
+            probCount++;
         }
-        catch (indexRangeError& ex)
-        {
-            cout << ex.what() << endl;
-            exit(1);
-        }
-        fin.close();
+        avrg = sum / probCount;
+        cout << "Average Iterations per Puzzle: " << avrg << endl;
     }
+    catch (indexRangeError& ex)
+    {
+        cout << ex.what() << endl;
+        exit(1);
+    }
+    fin.close();
 }
