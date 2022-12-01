@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Project#4
-// Sudoku: Part A
+// Sudoku: Part B
 // Written by:
 // James Napier:                                      napier.j@northeastern.edu
 // Julia Rasmussen:                                rasmussen.j@northeastern.edu
 // Samuel Sheehan:                                   sheehan.s@northeastern.edu
 //
-// Main program file for homework 4a. Includes functions for initializing the
+// Main program file for homework 4b. Includes functions for initializing the
 // conflicts, adding and removing cells, and printing out the sudoku board.
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -282,7 +282,7 @@ bool board::isSolved()
     }
     return true;
 }
-
+/*
 bool board::cellFullyConstrained(int i, int j)
 {
     bool fullyConstrained = true;
@@ -296,21 +296,21 @@ bool board::cellFullyConstrained(int i, int j)
     }
     return fullyConstrained;
 }
-
-bool board::numberIsLegal(int i, int j, int n)
+*/
+bool board::numberIsLegal(vector<int> cell, int n)
 {
     bool isLegal = true;
 
     //check whether value n is legal for row, col, and square.
-    if (row_conflicts[i][n])
+    if (row_conflicts[cell[0]][n] == 1)
     {
         isLegal = false;
     }
-    if (col_conflicts[j][n])
+    if (col_conflicts[cell[1]][n] == 1)
     {
         isLegal = false;
     }
-    if (square_conflicts[squareNumber(i, j)][n])
+    if (square_conflicts[squareNumber(cell[0], cell[1])][n] == 1)
     {
         isLegal = false;
     }
@@ -321,36 +321,96 @@ bool board::numberIsLegal(int i, int j, int n)
 vector<ValueType> board::nextBlank()
 {
     //return the next blank cell.
+    vector<int> cell(2,0);
+    int lock = -250;
+    for (int r = 1; r <= BoardSize; r++)
+    {
+        for (int c = 1; c <= BoardSize; c++)
+        {
+            if (this->isBlank(r,c))
+            {
+                
+                int comp = 0;
+                for (int n = 0; n < 3; n++)
+                {
+                    //choose which conflict matrix to print out
+                    matrix<ValueType> conflict_matrix;
+                    if (n == 0)
+                    {
+                        conflict_matrix = row_conflicts;
+                        for (int i = 1; i <= BoardSize; i++)
+                        {
+                            comp += conflict_matrix[r][i];
+                        }
+                        
+                    }
+                    else if (n == 1)
+                    {
+                        conflict_matrix = col_conflicts;
+                        for (int j = 1; j<= BoardSize; j++)
+                        {
+                            comp += conflict_matrix[c][j];
+                        }
+                    }
+                    else
+                    {
+                        conflict_matrix = square_conflicts;
+                        for (int k = 1; k <= BoardSize; k++)
+                        {
+                            comp += conflict_matrix[squareNumber(r,c)][k];
+                        }
+                        
+                    }
+
+                }
+                if (comp >= lock)
+                {
+                    lock = comp;
+                    comp = 0;
+                    cell[0] = r;
+                    cell[1] = c;
+                }
+                
+            }
+        }
+    }
+    return cell;
 }
 
 /*
 * Solves the board recursively.
 */
-void board::solve(int i, int j)
+void solve(board board)
 {
     //first base case: the board is already solved.
-    if (isSolved())
+    if (board.isSolved())
     {
-        print();
+        board.print();
         return;
     }
-
+    /*
     //second base case: no more legal choices for blank cell.
     //in this case, backtracking must happen.
     else if (cellFullyConstrained(i, j))
     {
         //backtrack
     }
-
+    */
     //else try all values of n.
     else
     {
+        // find first blank cell
+        vector<int> blank = board.nextBlank();
+        // Check All Numbers
         for (int n = 1; n <= 9; n++)
         {
-            if (numberIsLegal(i, j, n))
+            if (board.numberIsLegal(blank, n))
             {
-                value[i][j] = n;
-                solve(nextBlank()[0], nextBlank()[1]);
+                board.setCell(blank[0], blank[1], n);
+                board.print();
+                solve(board);
+                board.resetCell(blank[0], blank[1]);
+
             }
         }
     }
@@ -371,7 +431,7 @@ int main()
         //Read through each given sudoku file.
         if (i == 1)
         {
-            fileName = "../sudoku1.txt";
+            fileName = "sudoku1.txt";
         }
         else if (i == 2)
         {
@@ -426,7 +486,7 @@ int main()
 
             //Try to solve the board
             cout << "\nWe will now attempt to solve the given board.\n";
-            b1.solve(b1.nextBlank()[0], b1.nextBlank()[1]);
+            solve(b1);
         }
         catch (indexRangeError& ex)
         {
