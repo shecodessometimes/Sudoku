@@ -371,14 +371,7 @@ int solve(board board, int iter = 1)
         cout << "Iterations: " << iter << endl;
         return iter;
     }
-    /*
-    //second base case: no more legal choices for blank cell.
-    //in this case, backtracking must happen.
-    else if (cellFullyConstrained(i, j))
-    {
-        //backtrack
-    }
-    */
+
     //else try all values of n.
     else
     {
@@ -396,6 +389,7 @@ int solve(board board, int iter = 1)
                 //cout << "Setting " << n << " at " << blank[0] << "," << blank[1] << endl;
                 sumIter += solve(board, iter);
                 board.resetCell(blank[0], blank[1]);
+                //iter++;
             }
         }
         return sumIter;
@@ -410,7 +404,7 @@ int solve(board board, int iter = 1)
 int main()
 {
     ifstream fin;
-    string fileName = "sudoku1-3.txt";
+    string fileName = "sudoku.txt";
     // Read the sample grid from the file.
 
     //Open the file, throw an error if it can't be opened.

@@ -42,12 +42,11 @@ public:
     //bool cellFullyConstrained(std::vector<int> cell);
     bool numberIsLegal(std::vector<int> cell, int n);
     vector<ValueType> nextBlank();
-    //void solve(int iter = 1);
+    bool haveSolved = false;
 private:
 
     // The following matrices go from 1 to BoardSize in each
     // dimension, i.e., they are each (BoardSize+1) * (BoardSize+1)
-
     matrix<ValueType> value;
     matrix<ValueType> row_conflicts;
     matrix<ValueType> col_conflicts;
