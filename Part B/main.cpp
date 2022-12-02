@@ -382,21 +382,23 @@ int solve(board board, int iter = 1)
     //else try all values of n.
     else
     {
+        int sumIter = 0;
         // find first blank cell
         vector<int> blank = board.nextBlank();
         // Check All Numbers
         for (int n = 1; n <= 9; n++)
         {
-            iter++;
             if (board.numberIsLegal(blank, n))
             {
+                iter++;
                 board.setCell(blank[0], blank[1], n);
                 //board.print();
                 //cout << "Setting " << n << " at " << blank[0] << "," << blank[1] << endl;
-                solve(board, iter);
+                sumIter += solve(board, iter);
                 board.resetCell(blank[0], blank[1]);
             }
         }
+        return sumIter;
     }
 }
 
@@ -430,9 +432,11 @@ int main()
         {
             b1.initialize(fin);
             b1.print();
+            cout << "==============================\n";
             //Try to solve the board
             cout << "\nWe will now attempt to solve the given board.\n";
             iterations = solve(b1);
+            cout << "==============================\n";
             sum += iterations;
             probCount++;
         }
