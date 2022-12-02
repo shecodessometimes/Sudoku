@@ -362,13 +362,19 @@ vector<ValueType> board::nextBlank()
 /*
 * Solves the board recursively.
 */
-int solve(board board, int iter = 1)
+int board::solve(int iter)
 {
     //first base case: the board is already solved.
-    if (board.isSolved())
+    if(haveSolved)
     {
-        board.print();
-        cout << "Iterations: " << iter << endl;
+        return 0;
+    }
+    //second base case: this board is the solution
+    else if (this->isSolved())
+    {
+        this->print();
+        cout << "Solution in " << iter << " iterations.\n\n";
+        haveSolved = true;      // set alternative exit condition in board
         return iter;
     }
 
@@ -377,19 +383,22 @@ int solve(board board, int iter = 1)
     {
         int sumIter = 0;
         // find first blank cell
-        vector<int> blank = board.nextBlank();
+        vector<int> blank = this->nextBlank();
         // Check All Numbers
         for (int n = 1; n <= 9; n++)
         {
-            if (board.numberIsLegal(blank, n))
+            if (this->numberIsLegal(blank, n))
             {
                 iter++;
-                board.setCell(blank[0], blank[1], n);
-                //board.print();
+                this->setCell(blank[0], blank[1], n);
+                //this->print();
                 //cout << "Setting " << n << " at " << blank[0] << "," << blank[1] << endl;
-                sumIter += solve(board, iter);
-                board.resetCell(blank[0], blank[1]);
-                //iter++;
+                sumIter += solve(iter);
+                if(haveSolved)
+                {
+                    break;
+                }
+                this->resetCell(blank[0], blank[1]);
             }
         }
         return sumIter;
@@ -417,20 +426,22 @@ int main()
 
     try
     {
-        board b1(SquareSize);
-        int iterations, avrg;
+
+        int avrg;
         int sum = 0;
-        int probCount = 0;
+        int probCount = 1;
         //Initialize the board.
         while (fin && fin.peek() != 'Z')
         {
+            board b1(SquareSize);
+            int iterations = 1;
             b1.initialize(fin);
             b1.print();
-            cout << "==============================\n";
+            //cout << "==============================\n";
             //Try to solve the board
-            cout << "\nWe will now attempt to solve the given board.\n";
-            iterations = solve(b1);
-            cout << "==============================\n";
+            cout << "\nWe will now attempt to solve board " << probCount << endl;
+            iterations = b1.solve(iterations);
+            cout << "==============================\n\n";
             sum += iterations;
             probCount++;
         }

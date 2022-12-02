@@ -38,7 +38,7 @@ public:
     void updateConflicts(int, int, int, bool);
     void resetCell(int, int);
     bool isSolved();
-    //void solve();
+    int solve(int iter = 1);
     //bool cellFullyConstrained(std::vector<int> cell);
     bool numberIsLegal(std::vector<int> cell, int n);
     vector<ValueType> nextBlank();
