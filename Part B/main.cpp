@@ -4,7 +4,7 @@
 // Written by:
 // James Napier:                                      napier.j@northeastern.edu
 // Julia Rasmussen:                                rasmussen.j@northeastern.edu
-// Samuel Sheehan:                                   sheehan.s@northeastern.edu
+// Samuel Sheehan:                                  sheehan.sa@northeastern.edu
 //
 // Main program file for homework 4b. Includes functions for initializing the
 // conflicts, adding and removing cells, and printing out the sudoku board.
@@ -110,6 +110,7 @@ ValueType board::getCell(int i, int j)
 {
     if (i >= 1 && i <= BoardSize && j >= 1 && j <= BoardSize)
         return value[i][j];
+    //if cell is not in the range of the board throw error
     else
         throw rangeError("bad value in getCell");
 }
@@ -283,19 +284,23 @@ bool board::isSolved()
     return true;
 }
 
+
 bool board::numberIsLegal(vector<int> cell, int n)
 {
     bool isLegal = true;
 
     //check whether value n is legal for row, col, and square.
+    //row
     if (row_conflicts[cell[0]][n] == 1)
     {
         isLegal = false;
     }
+    //column
     if (col_conflicts[cell[1]][n] == 1)
     {
         isLegal = false;
     }
+    //3x3 square
     if (square_conflicts[squareNumber(cell[0], cell[1])][n] == 1)
     {
         isLegal = false;
